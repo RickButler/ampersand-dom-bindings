@@ -1173,3 +1173,25 @@ test('handle yes/no cases for `toggle` when missing `yes` or `no`', function (t)
 
     t.end();
 });
+
+test('function selector binding', function (t) {
+    var el = getEl('<span class="thing" data-hook="hello"></span>');
+    var bindings = domBindings({
+        'model1': {
+            type: 'text',
+            selector: function(){ return '.thing'; }
+        },
+        'model2': {
+            type: 'text',
+            selector: function(){ return '[data-hook=hello]'; }
+        }
+    });
+    t.notEqual(el.firstChild.textContent, 'hello');
+    bindings.run('model1', null, el, 'hello');
+    t.equal(el.innerHTML, '<span class="thing" data-hook="hello">hello</span>');
+
+    bindings.run('model2', null, el, 'string');
+    t.equal(el.innerHTML, '<span class="thing" data-hook="hello">string</span>');
+    
+    t.end();
+});

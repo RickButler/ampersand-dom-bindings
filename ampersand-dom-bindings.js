@@ -7,6 +7,7 @@ var slice = Array.prototype.slice;
 
 function getMatches(el, selector) {
     if (selector === '') return [el];
+    if(typeof selector === 'function')  selector = selector();
     var matches = [];
     if (matchesSelector(el, selector)) matches.push(el);
     return matches.concat(slice.call(el.querySelectorAll(selector)));
@@ -45,11 +46,13 @@ function switchHandler(binding, el, value) {
     });
 }
 
-function getSelector(binding) {
+function getSelector(binding, context) {
     if (typeof binding.selector === 'string') {
         return binding.selector;
     } else if (binding.hook) {
         return '[data-hook~="' + binding.hook + '"]';
+    } else if (typeof binding.selector === 'function') {
+        return binding.selector.bind(context);
     } else {
         return '';
     }
@@ -58,7 +61,7 @@ function getSelector(binding) {
 function getBindingFunc(binding, context) {
     var type = binding.type || 'text';
     var isCustomBinding = typeof type === 'function';
-    var selector = getSelector(binding);
+    var selector = getSelector(binding, context);
     var yes = binding.yes;
     var no = binding.no;
     var hasYesNo = !!(yes || no);
